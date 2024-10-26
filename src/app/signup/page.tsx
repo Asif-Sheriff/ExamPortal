@@ -3,31 +3,47 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const router = useRouter();
-  const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleEmailLogin = async () => {
-    const res = await signIn("credentials", {
-      redirect: false,
-      username,
-      email,
-      password,
+  const handleEmailSignup = async () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    
+    // Assume there's an API route at /api/signup to handle signup
+    const res = await fetch("/api/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, username, password }),
     });
-    if (res?.ok) {
+
+    const data = await res.json();
+
+    if (res.ok) {
+      await signIn("credentials", {
+        redirect: false,
+        email,
+        username,
+        password,
+      });
       router.push("/");
     } else {
-      console.log(res?.error);
+      setError(data.message || "Failed to sign up");
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-sm w-full">
-        <h1 className="text-2xl font-semibold text-center mb-6">Sign In</h1>
-        
+        <h1 className="text-2xl font-semibold text-center mb-6">Sign Up</h1>
+
         <input
           type="username"
           value={username}
@@ -35,6 +51,7 @@ export default function SignInPage() {
           placeholder="Username"
           className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
         />
+
         <input
           type="email"
           value={email}
@@ -51,23 +68,24 @@ export default function SignInPage() {
           className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
         />
 
+        <input
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm Password"
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
+        />
+
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+
         <button
-          onClick={handleEmailLogin}
+          onClick={handleEmailSignup}
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all mb-4"
         >
-          Login with Email
+          Sign Up
         </button>
 
         <div className="text-center text-gray-500 mb-4">or</div>
-
-        <button
-          onClick={async () => {
-            await signIn("google");
-          }}
-          className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all"
-        >
-          Login with Google
-        </button>
       </div>
     </div>
   );
