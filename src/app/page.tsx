@@ -8,9 +8,6 @@ export default async function Home() {
     <div>
       <Appbar />
       {JSON.stringify(session)}
-      
-      
-
     </div>
   );
 }

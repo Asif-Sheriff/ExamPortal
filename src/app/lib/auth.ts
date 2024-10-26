@@ -1,8 +1,7 @@
-
-import { Sign } from 'crypto';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { signIn } from 'next-auth/react';
-import { pages } from 'next/dist/build/templates/app-page';
+import clientPromise from './database';
+import bcrypt  from 'bcrypt';
+
 
 export const NEXT_AUTH_CONFIG = {
     providers: [
@@ -13,13 +12,39 @@ export const NEXT_AUTH_CONFIG = {
             password: { label: 'password', type: 'password', placeholder: '' },
           },
           async authorize(credentials: any) {
+            
+            // console.log(credentials);
+            const client = await clientPromise;
+            const db = client.db("ChatApp");
 
-              return {
-                  id: "user1",
-                  name: "asd",
-                  userId: "asd",
-                  email: "ramdomEmail"
-              };
+            
+
+            const user = await db.collection("User Collection").findOne({ email : credentials?.email});
+
+            if(user)
+            console.log(JSON.stringify({
+              id: user._id.toString() ,
+              name: user.name,
+              email: user.email,
+              userId: user.userId,
+              password: user.password
+            })
+          )
+            if(user && credentials.password === user.password){
+
+                return {
+                  id: user._id.toString(),
+                  name: user.name,
+                  email: user.email,
+                  userId: user.userId,
+                };
+              }
+              
+            
+            
+
+            return null;
+            
           },
         }),
     ],
