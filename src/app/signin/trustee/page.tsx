@@ -15,6 +15,7 @@ export default function SignInPage() {
       username,
       email,
       password,
+      type: "trustee"
     });
     if (res?.ok) {
       router.push("/");
@@ -26,7 +27,7 @@ export default function SignInPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-sm w-full">
-        <h1 className="text-2xl font-semibold text-center mb-6">Sign In</h1>
+        <h1 className="text-2xl font-semibold text-center mb-6">Trustee Sign In</h1>
         
         <input
           type="username"

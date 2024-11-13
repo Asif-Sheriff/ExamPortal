@@ -5,16 +5,17 @@ interface SignupBody {
   email: string;
   username: string;
   password: string;
+  type: string;
 }
 
-export default async function signup({ email, username, password }: SignupBody) {
+export default async function signup({ email, username, password, type }: SignupBody) {
   if (!email || !username || !password) {
     return { status: 400, message: "Missing required fields" };
   }
 
   try {
     const client = await clientPromise;
-    const db = client.db("ChatApp");
+    const db = client.db("ExamPortal");
     const usersCollection = db.collection("User Collection");
 
     // Check if username or email already exists
@@ -34,6 +35,7 @@ export default async function signup({ email, username, password }: SignupBody) 
       email,
       username,
       password: hashedPassword,
+      type,
       createdAt: new Date(),
     });
 
