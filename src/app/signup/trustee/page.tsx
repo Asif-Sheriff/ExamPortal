@@ -18,7 +18,6 @@ export default function SignUpPage() {
       return;
     }
     
-    // Assume there's an API route at /api/signup to handle signup
     const res = await fetch("/api/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

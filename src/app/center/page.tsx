@@ -1,10 +1,11 @@
-// page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import TrusteeDropdown from '@/src/components/TrusteeDropdown'; // Adjust the import path as necessary
+import { useSession  } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 
 type Question = {
   question: string;
@@ -22,6 +23,12 @@ type Trustee = {
   };
 
 const CenterPage = () => {
+  const session =  useSession();
+  
+
+  if(!session?.data?.user){
+    redirect('/signin/student');
+  }
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question>({
     question: '',
