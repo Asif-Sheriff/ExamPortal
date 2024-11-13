@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
-import TrusteeDropdown from '@/src/components/TrusteeDropdown'; // Adjust the import path as necessary
-import { useSession  } from 'next-auth/react';
+import TrusteeDropdown from '@/src/components/TrusteeDropdown';
+import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
+import SSS from 'shamirs-secret-sharing';
 
 type Question = {
   question: string;
@@ -16,19 +17,19 @@ type Question = {
 };
 
 type Trustee = {
-    _id: string;
-    username: string;
-    email: string;
-    type: string;
-  };
+  _id: string;
+  username: string;
+  email: string;
+  type: string;
+};
 
 const CenterPage = () => {
-  const session =  useSession();
-  
+  const session = useSession();
 
-  if(!session?.data?.user){
+  if (!session?.data?.user) {
     redirect('/signin/student');
   }
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question>({
     question: '',
@@ -41,31 +42,21 @@ const CenterPage = () => {
   const [trustees, setTrustees] = useState<Trustee[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTrustees, setSelectedTrustees] = useState<string[]>([]);
+  const [trusteeShares, setTrusteeShares] = useState<{ name: string; share: string }[]>([]);
 
-  // Fetch trustees once on mount
   useEffect(() => {
-    let isMounted = true;
-
     const fetchTrustees = async () => {
       try {
         const response = await axios.get('/api/trustees');
-        if (isMounted) {
-          setTrustees(response.data.data || []);
-          setLoading(false);
-        }
+        setTrustees(response.data.data || []);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching trustees:', error);
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
     fetchTrustees();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const handleAddQuestion = () => {
@@ -112,10 +103,28 @@ const CenterPage = () => {
     }));
 
     try {
+      const secretBuffer = Buffer.from(secretKey, 'utf8');
+    
+      // Set shares to 3 and threshold to 2 for a 2/3 split
+      const shares = SSS.split(secretBuffer, { shares: 3, threshold: 2 });
+    
+      // Map the first 3 shares to the selected trustees
+      const trusteeShares = selectedTrustees.slice(0, 3).map((trusteeId, index) => {
+        const trustee = trustees.find((t) => t._id === trusteeId);
+        return {
+          name: trustee?.username || trustee?.email || 'Unknown Trustee',
+          share: shares[index].toString('hex'),
+        };
+      });
+    
+      setTrusteeShares(trusteeShares);
+    
+      // Optional: Upload the questions and shares to the server
       await axios.post('/api/questions', {
         questions: encryptedQuestions,
-        trustees: selectedTrustees,
+        trustees: trusteeShares.map((t) => ({ id: t.share, name: t.name })),
       });
+    
       alert('Questions uploaded successfully!');
       setQuestions([]);
       setSecretKey('');
@@ -124,6 +133,7 @@ const CenterPage = () => {
       console.error('Error uploading questions:', error);
       alert('Failed to upload questions. Please try again.');
     }
+    
   };
 
   const handleTrusteeChange = (updatedSelectedTrustees: string[]) => {
@@ -200,7 +210,25 @@ const CenterPage = () => {
         ) : (
           <ul className="list-disc list-inside">
             {questions.map((q, index) => (
-              <li key={`question-${index}`}>{q.question}</li>
+              <li key={`question-${index}`} className="mb-4">
+                <div>
+                  <strong>Question {index + 1}:</strong> {q.question}
+                </div>
+                <ul className="ml-6 mt-2">
+                  <li>
+                    <strong>Option A:</strong> {q.optionA}
+                  </li>
+                  <li>
+                    <strong>Option B:</strong> {q.optionB}
+                  </li>
+                  <li>
+                    <strong>Option C:</strong> {q.optionC}
+                  </li>
+                  <li>
+                    <strong>Option D:</strong> {q.optionD}
+                  </li>
+                </ul>
+              </li>
             ))}
           </ul>
         )}
@@ -235,6 +263,29 @@ const CenterPage = () => {
       >
         Upload Questions
       </button>
+
+      {/* Trustee Shares Table */}
+      {trusteeShares.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-4">Trustee Shares</h2>
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 p-2">Trustee Name</th>
+                <th className="border border-gray-300 p-2">Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trusteeShares.map((share, index) => (
+                <tr key={index}>
+                  <td className="border border-gray-300 p-2">{share.name}</td>
+                  <td className="border border-gray-300 p-2">{share.share}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
