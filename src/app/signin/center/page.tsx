@@ -18,7 +18,7 @@ export default function SignInPage() {
       type: "center"
     });
     if (res?.ok) {
-      router.push("/");
+      router.push("/center");
     } else {
       console.log(res?.error);
     }

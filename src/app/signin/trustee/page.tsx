@@ -18,7 +18,7 @@ export default function SignInPage() {
       type: "trustee"
     });
     if (res?.ok) {
-      router.push("/");
+      router.push("/trustee");
     } else {
       console.log(res?.error);
     }
