@@ -46,10 +46,12 @@ const StudentPage: React.FC = () => {
 
   const reconstructSecretKey = async () => {
     try {
+      
       // Combine the key parts
       const buffers = keyParts.map((key) => Buffer.from(key, 'hex'));
       const secretBuffer = SSS.combine(buffers); // Combine the key parts
       const secretKey = secretBuffer.toString('utf8');
+      
 
       setMessage('Successfully reconstructed the secret key.');
       fetchAndDecryptQuestionPaper(secretKey);
@@ -62,21 +64,33 @@ const StudentPage: React.FC = () => {
   const fetchAndDecryptQuestionPaper = async (secretKey: string) => {
     try {
       // Fetch the encrypted question paper from the backend
-      const response = await axios.get('/api/question');
-      const encryptedPaper = response.data.encryptedPaper;
-
-      // Decrypt the question paper using the reconstructed key
-      const decryptedPaper: QuestionPaper = JSON.parse(
-        CryptoJS.AES.decrypt(encryptedPaper, secretKey).toString(CryptoJS.enc.Utf8)
-      );
-
-      setQuestionPaper(decryptedPaper);
+      const response = await axios.get('/api/questions');
+      const encryptedQuestions = response.data.questions[0].questions;
+  
+      // Decrypt each question and its options
+      const decryptedQuestions = encryptedQuestions.map((item: any) => {
+        const decryptedQuestion = CryptoJS.AES.decrypt(item.question, secretKey).toString(CryptoJS.enc.Utf8);
+        const decryptedOptions = {
+          A: CryptoJS.AES.decrypt(item.options.A, secretKey).toString(CryptoJS.enc.Utf8),
+          B: CryptoJS.AES.decrypt(item.options.B, secretKey).toString(CryptoJS.enc.Utf8),
+          C: CryptoJS.AES.decrypt(item.options.C, secretKey).toString(CryptoJS.enc.Utf8),
+          D: CryptoJS.AES.decrypt(item.options.D, secretKey).toString(CryptoJS.enc.Utf8),
+        };
+  
+        return {
+          question: decryptedQuestion,
+          options: decryptedOptions,
+        };
+      });
+  
+      setQuestionPaper({ questions: decryptedQuestions });
       setMessage('Question paper successfully decrypted!');
     } catch (error) {
       console.error('Error fetching or decrypting the question paper:', error);
       setMessage('Error fetching or decrypting the question paper.');
     }
   };
+  
 
   const handleSubmit = async () => {
     try {

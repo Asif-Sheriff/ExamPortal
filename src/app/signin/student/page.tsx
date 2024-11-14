@@ -18,7 +18,7 @@ export default function SignInPage() {
       type: "student"
     });
     if (res?.ok) {
-      router.push("/center");
+      router.push("/exam");
     } else {
       console.log(res?.error);
     }
@@ -57,17 +57,6 @@ export default function SignInPage() {
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all mb-4"
         >
           Login with Email
-        </button>
-
-        <div className="text-center text-gray-500 mb-4">or</div>
-
-        <button
-          onClick={async () => {
-            await signIn("google");
-          }}
-          className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all"
-        >
-          Login with Google
         </button>
       </div>
     </div>

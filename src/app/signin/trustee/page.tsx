@@ -58,17 +58,6 @@ export default function SignInPage() {
         >
           Login with Email
         </button>
-
-        <div className="text-center text-gray-500 mb-4">or</div>
-
-        <button
-          onClick={async () => {
-            await signIn("google");
-          }}
-          className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all"
-        >
-          Login with Google
-        </button>
       </div>
     </div>
   );
