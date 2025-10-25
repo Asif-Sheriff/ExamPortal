@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trustless Exam App
 
-## Getting Started
+A **trustless exam platform** built with **TypeScript**, leveraging **Shamir’s Secret Sharing** and **Public Key Cryptography** to ensure exam integrity, secure question distribution, and verifiable results.
 
-First, run the development server:
+---
+
+## Motivation
+
+Traditional online exams rely heavily on central authorities for question access, grading, and validation — creating single points of failure and trust.  
+This app removes that dependency using cryptographic primitives, ensuring **confidentiality**, **verifiability**, and **decentralization** in the exam process.
+
+---
+
+## Quick Start
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/trustless-exam-app.git
+
+# Navigate to project folder
+cd trustless-exam-app
+
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+## Usage
+
+1. **Instructor** encrypts exam questions using public-key cryptography.  
+2. **Exam keys** are split using **Shamir’s Secret Sharing** among multiple verifiers.  
+3. **Students** decrypt questions and submit answers using their private keys.  
+4. **Verifiers** reconstruct the secret to validate results without relying on a central authority.
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Contributing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Contributions are welcome!  
+Fork the repository, create a new branch, and submit a pull request.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+git checkout -b feature/your-feature
+git commit -m "Add: your feature"
+git push origin feature/your-feature
+```
